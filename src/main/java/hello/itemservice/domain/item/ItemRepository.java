@@ -39,7 +39,7 @@ public class ItemRepository {
     }
 
     //해쉬맵에 있는 자료를 다 날리기위해 만들었고 테스트용도임
-    public void clearStore(){
+    public void clearStore() {
         store.clear();
     }
 

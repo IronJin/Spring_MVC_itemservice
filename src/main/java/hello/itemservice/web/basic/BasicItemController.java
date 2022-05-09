@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.annotation.PostConstruct;
 import java.net.PortUnreachableException;
@@ -53,7 +54,7 @@ public class BasicItemController {
     /**
      * 상품 등록 버튼을 눌렀을때 동작
      */
-    @PostMapping("/add")
+    //@PostMapping("/add")
     public String save(
             @RequestParam String itemName,
             @RequestParam int price,
@@ -67,7 +68,21 @@ public class BasicItemController {
 
         itemRepository.save(item);
         model.addAttribute("item",item);
-        return "basic/item";
+        return "redirect:/basic/items/"+item.getId();
+    }
+
+    /**
+     * 상품 등록 버튼을 눌렀을때 동작
+     * @ModelAttribute 를 사용
+     * 리다이렉트를 쓰는 이유 : 새로고침했을때 Post 를 계속해서 요청하게 되므로 같은값이 계속해서 저장하게 되는 문제가 발생
+     */
+    @PostMapping("/add")
+    public String addItem(@ModelAttribute("item") Item item, Model model, RedirectAttributes redirectAttributes) {
+        Item savedItem = itemRepository.save(item);
+        redirectAttributes.addAttribute("itemId", savedItem.getId()); //리다이렉트
+        redirectAttributes.addAttribute("status", true); //쿼리 파라미터로 넘어감
+        model.addAttribute("item",item); //이 부분은 @ModelAttribute("item") 이 item 이름으로 모델을 전달해줌 따라서 생략이 가능하다.
+        return "redirect:/basic/items/{itemId}";
     }
 
 
@@ -87,7 +102,7 @@ public class BasicItemController {
     @PostMapping("/{itemId}/edit")
     public String edit(@PathVariable long itemId, @ModelAttribute Item item) {
         itemRepository.update(itemId, item);
-        return "basic/item";
+        return "redirect:/basic/items/{itemId}";
     }
 
 }
